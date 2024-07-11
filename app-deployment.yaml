@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app4-express
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app4-express
+  template:
+    metadata:
+      labels:
+        app: app4-express
+    spec:
+      containers:
+      - name: app4-express
+        image: gcr.io/sound-repeater-428004-q5/app4-express:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_HOST
+          value: "mysql"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASSWORD
+          value: "root"
+        - name: DB_NAME
+          value: "cricket"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app4-express
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: app4-express

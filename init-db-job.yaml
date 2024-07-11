@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-db
+spec:
+  template:
+    spec:
+      containers:
+      - name: init-db
+        image: mysql:5.6
+        command: ["/bin/sh", "-c"]
+        args:
+        - >
+          until mysql -h mysql -uroot -proot -e "SELECT 1"; do
+            echo "Waiting for MySQL to be ready...";
+            sleep 5;
+          done;
+          echo "MySQL is ready, initializing database...";
+          mysql -h mysql -uroot -proot -e "
+            CREATE DATABASE IF NOT EXISTS cricket;
+            USE cricket;
+            CREATE TABLE IF NOT EXISTS players (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              name VARCHAR(255) NOT NULL,
+              team VARCHAR(255) NOT NULL,
+              role VARCHAR(255) NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );"
+      restartPolicy: OnFailure
